@@ -1,0 +1,29 @@
+import os
+
+# get current directory
+# cwd = os.getcwd()
+cwd = os.path.dirname(File('SConscript').rfile().abspath)
+
+# The set of source files associated with this SConscript file.
+src = Glob('*.c') 
+src += Glob('soft-se/*.c') 
+src_tmp = Split("""
+region/Region.c
+region/RegionCommon.c
+region/RegionEU868.c
+""")
+src += File(src_tmp)
+
+cpppath = [
+    cwd,
+    cwd + '/soft-se',
+    cwd + '/region']
+
+cppdefines = []
+
+group = {
+    'SOURCE'     : src,
+    'CPPDEFINES' : cppdefines,
+    'CPPPATH'    : cpppath}
+
+Return('group')

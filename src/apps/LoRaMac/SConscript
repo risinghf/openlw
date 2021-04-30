@@ -1,0 +1,26 @@
+import os
+
+# get current directory
+# cwd = os.getcwd()
+cwd = os.path.dirname(File('SConscript').rfile().abspath)
+
+# The set of source files associated with this SConscript file.
+src_tmp = Split("""
+common/lw.c
+demo/RHF0M0E5/main.c
+""")
+src = File(src_tmp)
+
+cpppath = [
+    cwd + '/common',
+    cwd + '/demo/RHF0M0E5'
+]
+
+cppdefines = []
+
+group = {
+    'SOURCE'     : src,
+    'CPPDEFINES' : cppdefines,
+    'CPPPATH'    : cpppath}
+
+Return('group')

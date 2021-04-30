@@ -1,0 +1,24 @@
+import os
+
+# get current directory
+# cwd = os.getcwd()
+cwd = os.path.dirname(File('SConscript').rfile().abspath)
+
+# The set of source files associated with this SConscript file.
+src = Glob('*.c') 
+src += File(['gcc/startup_stm32wle5xx.s'])
+
+cpppath = [
+    cwd,
+    cwd + '/../']
+
+cppdefines = []
+
+# print(cpppath)
+
+group = {
+    'SOURCE'     : src,
+    'CPPDEFINES' : cppdefines,
+    'CPPPATH'    : cpppath}
+
+Return('group')

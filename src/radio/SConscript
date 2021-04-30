@@ -1,0 +1,25 @@
+import os
+
+# get current directory
+# cwd = os.getcwd()
+cwd = os.path.dirname(File('SConscript').rfile().abspath)
+
+# The set of source files associated with this SConscript file.
+src = Split("""
+radio-log.c
+sx126x/radio.c
+sx126x/sx126x.c
+""")
+
+cpppath = [
+    cwd,
+    cwd + '/sx126x']
+
+cppdefines = []
+
+group = {
+    'SOURCE'     : File(src),
+    'CPPDEFINES' : cppdefines,
+    'CPPPATH'    : cpppath}
+
+Return('group')
