@@ -25,6 +25,7 @@
 #include "board.h"
 #include "sysIrqHandlers.h"
 #include "uart-board.h"
+#include "timer.h"
 
 /*!
  * Number of times the UartPutBuffer will try to send the buffer before
@@ -166,6 +167,91 @@ void UartMcuDeInit( Uart_t *obj )
         GpioInit( &obj->Rx, obj->Rx.pin, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     }
 }
+
+#define TX_OVER_TIME  (5)
+#define RX_OVER_TIME  (20)
+TimerTime_t uart_tx_tick = 0;
+bool UartMcuTxBusy( Uart_t *obj )
+{
+    bool ret = true;
+    if( obj->UartId == UART_1 )
+    {
+        CRITICAL_SECTION_BEGIN( );
+        if( IsFifoEmpty( &obj->FifoTx ) )
+        {
+            if( uart_tx_tick == 0 )
+            {
+                uart_tx_tick = TimerGetCurrentTime();
+            }
+            else
+            {
+                if( TimerGetElapsedTime(uart_tx_tick) > TX_OVER_TIME )
+                {
+                    ret = false;
+                }
+            }
+        }
+        else
+        {
+            ret = true;
+            uart_tx_tick = 0;
+        }
+        CRITICAL_SECTION_END( );
+    }
+    return ret;
+}
+
+TimerTime_t uart_rx_tick = 0;
+bool UartMcuRxBusy( Uart_t *obj )
+{
+    bool ret = true;
+    if( obj->UartId == UART_1 )
+    {
+        CRITICAL_SECTION_BEGIN( );
+        if( IsFifoEmpty( &obj->FifoRx ) )
+        {
+            if( uart_rx_tick == 0 )
+            {
+                uart_rx_tick = TimerGetCurrentTime();
+            }
+            else
+            {
+                if( TimerGetElapsedTime(uart_rx_tick) > RX_OVER_TIME )
+                {
+                    ret = false;
+                }
+            }
+        }
+        else
+        {
+            ret = true;
+            uart_rx_tick = 0;
+        }
+        CRITICAL_SECTION_END( );
+    }
+    return ret;
+}
+
+bool UartMcuIsIdle( void )
+{
+    uint8_t ret_flag = 0;
+    if( UartMcuTxBusy(&Uart1) )
+    {
+        ret_flag++;
+    }
+
+    if( UartMcuRxBusy(&Uart1) )
+    {
+        ret_flag++;
+    }
+
+    if( ret_flag == 0 )
+    {
+        return true;
+    }
+    return false;
+}
+
 
 uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data )
 {

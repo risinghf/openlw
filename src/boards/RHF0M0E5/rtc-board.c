@@ -502,6 +502,7 @@ void RTC_Alarm_IRQHandler( void )
         {
             // Clear the AlarmA interrupt pending bit
             __HAL_RTC_ALARM_CLEAR_FLAG( hrtc, RTC_FLAG_ALRAF );
+
             // AlarmA callback
             HAL_RTC_AlarmAEventCallback( hrtc );
         }

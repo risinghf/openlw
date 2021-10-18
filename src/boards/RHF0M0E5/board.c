@@ -90,6 +90,45 @@ static bool UsbIsConnected = false;
 uint8_t Uart1TxBuffer[UART1_FIFO_TX_SIZE];
 uint8_t Uart1RxBuffer[UART1_FIFO_RX_SIZE];
 
+/*!
+ * Not use Pin Table
+ * Will be deinit
+ */
+static PinNames ugpio_tab[32] = {
+    PIN0,           // PIN0
+    PIN1,           // PIN1
+    PIN2,           // PIN2
+    PIN3,           // PIN3
+    PIN4,           // PIN4
+    PIN5,           // PIN5
+    PIN6,           // PIN6
+    PIN7,           // PIN7
+    PIN8,           // PIN8
+    PIN9,           // PIN9
+    PIN10,          // PIN10
+    PIN11,          // PIN11
+    PIN12,          // PIN12
+    PIN13,          // PIN13
+    PIN14,          // PIN14
+    PIN15,          // PIN15
+    PIN16,          // PIN16
+    PIN17,          // PIN17
+    PIN18,          // PIN18
+    PIN19,          // PIN19
+    PIN20,          // PIN20
+    PIN21,          // PIN21
+    PIN22,          // PIN22
+    PIN23,          // PIN23
+    PIN24,          // PIN24
+    PIN25,          // PIN25
+    PIN26,          // PIN26
+    PIN27,          // PIN27
+    PIN28,          // PIN28
+    PIN29,          // PIN29
+    PIN30,          // PIN30
+    PIN31,          // PIN31
+};
+
 void BoardCriticalSectionBegin( uint32_t *mask )
 {
     *mask = __get_PRIMASK( );
@@ -112,37 +151,35 @@ void BoardInitMcu( void )
     {
         HAL_Init( );
 
-        // LEDs
-        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
         SystemClockConfig( );
 
         // Disable Systick, now the rtc is used for delay function
         SysTick->CTRL  &= ~SysTick_CTRL_TICKINT_Msk;    // Systick IRQ off
         SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;            // Clear SysTick Exception pending flag
 
-        UsbIsConnected = true;
+//        UsbIsConnected = true;
 
         FifoInit( &Uart1.FifoTx, Uart1TxBuffer, UART1_FIFO_TX_SIZE );
         FifoInit( &Uart1.FifoRx, Uart1RxBuffer, UART1_FIFO_RX_SIZE );
-        // Configure your terminal for 8 Bits data (7 data bit + 1 parity bit), no parity and no flow ctrl
-        UartInit( &Uart1, UART_1, UART_TX, UART_RX );
-        UartConfig( &Uart1, RX_TX, 9600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
 
         RtcInit( );
 
         BoardUnusedIoInit( );
-        if( GetBoardPowerSource( ) == BATTERY_POWER )
-        {
-            // Disables OFF mode - Enables lowest power mode (STOP)
-            LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
-        }
+
+//        if( GetBoardPowerSource( ) == BATTERY_POWER )
+//        {
+//            // Disables OFF mode - Enables lowest power mode (STOP)
+//            LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
+//        }
     }
     else
     {
         SystemClockReConfig( );
     }
+
+    // Configure your terminal for 8 Bits data (7 data bit + 1 parity bit), no parity and no flow ctrl
+    UartInit( &Uart1, UART_1, UART_TX, UART_RX );
+    UartConfig( &Uart1, RX_TX, 9600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
 
     // SpiInit( &SX126x.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX126xIoInit( );
@@ -166,6 +203,10 @@ void BoardDeInitMcu( void )
 {
     SpiDeInit( &SX126x.Spi );
     SX126xIoDeInit( );
+    UartDeInit( &Uart1 );
+
+    /* Deinit IO */
+
 }
 
 uint32_t BoardGetRandomSeed( void )
@@ -202,9 +243,23 @@ uint8_t BoardGetBatteryLevel( void )
 
 static void BoardUnusedIoInit( void )
 {
+    Gpio_t gpio;
+    int i = 0;
+
+#ifdef DEBUG_PIN
     HAL_DBGMCU_EnableDBGSleepMode( );
     HAL_DBGMCU_EnableDBGStopMode( );
     HAL_DBGMCU_EnableDBGStandbyMode( );
+#endif
+
+    for(i=0; i<(sizeof(ugpio_tab)/(sizeof(PinNames))); i++)
+    {
+        if(ugpio_tab[i]==NC)
+        {
+            continue;
+        }
+        GpioInit( &gpio, ugpio_tab[i], PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    }
 }
 
 void SystemClockConfig( void )
@@ -282,10 +337,10 @@ void LpmEnterStopMode( void)
 
     BoardDeInitMcu( );
 
-    CRITICAL_SECTION_END( );
-
     // Enter Stop Mode
-    HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
+    HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
+    LpmExitStopMode();
+    CRITICAL_SECTION_END( );
 }
 
 /*!
@@ -324,6 +379,12 @@ void BoardLowPowerHandler( void )
     LpmEnterLowPower( );
 
     CRITICAL_SECTION_END( );
+}
+
+bool UartMcuIsIdle( void );
+bool BoardIsIdle( void )
+{
+    return UartMcuIsIdle();
 }
 
 #if defined(__CC_ARM) ||  defined(__ICCARM__)

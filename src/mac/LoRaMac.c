@@ -259,6 +259,8 @@ static LoRaMacNvmData_t Nvm;
 
 static Band_t RegionBands[REGION_NVM_MAX_NB_BANDS];
 
+static int8_t LastTxChannel = -1;
+
 /*!
  * Defines the LoRaMac radio events status
  */
@@ -2621,6 +2623,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
             return status;
         }
     }
+    LastTxChannel = MacCtx.Channel;
 
     // Compute window parameters, offsets, rx symbols, system errors etc.
     ComputeRxWindowParameters( );
@@ -4631,7 +4634,10 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
                 Nvm.MacGroup2.NetworkActivation = mlmeRequest->Req.Join.NetworkActivation;
                 queueElement.Status = LORAMAC_EVENT_INFO_STATUS_OK;
                 queueElement.ReadyToHandle = true;
-                MacCtx.MacCallbacks->MacProcessNotify( );
+                if(MacCtx.MacCallbacks->MacProcessNotify != NULL)
+                {
+                    MacCtx.MacCallbacks->MacProcessNotify( );
+                }
                 MacCtx.MacFlags.Bits.MacDone = 1;
                 status = LORAMAC_STATUS_OK;
             }
@@ -4904,5 +4910,15 @@ LoRaMacStatus_t LoRaMacDeInitialization( void )
     else
     {
         return LORAMAC_STATUS_BUSY;
+    }
+}
+
+#include "log.h"
+static const char *NAME = "LWMAC";
+void LoRaMacDebug(void)
+{
+    if (LastTxChannel != -1) {
+        LOG(DEBUG, "ch %02d", LastTxChannel);
+        LastTxChannel = -1;
     }
 }

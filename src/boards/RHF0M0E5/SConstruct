@@ -76,7 +76,8 @@ CPPDEFINES = [
     'USE_FULL_ASSERT',
     'USE_TCXO',
     'SOFT_SE',
-    'REGION_EU868'
+    'REGION_EU868',
+    'REGION_CN470OLD'
 ]
 
 env.AppendUnique(CPPDEFINES = CPPDEFINES)

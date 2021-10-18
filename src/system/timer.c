@@ -22,8 +22,14 @@
  */
 #include "utilities.h"
 #include "board.h"
+#include "lpm-board.h"
 #include "rtc-board.h"
 #include "timer.h"
+
+/*!
+ * This flag is used to make sure we have looped through the main several time to avoid race issues
+ */
+volatile uint8_t HasLoopedThroughMain = 0;
 
 /*!
  * Safely execute call back
@@ -366,7 +372,8 @@ static void TimerSetTimeout( TimerEvent_t *obj )
 {
     int32_t minTicks= RtcGetMinimumTimeout( );
     obj->IsNext2Expire = true;
-
+    HasLoopedThroughMain = 0;
+      
     // In case deadline too soon
     if( obj->Timestamp  < ( RtcGetTimerElapsedTime( ) + minTicks ) )
     {
@@ -378,6 +385,22 @@ static void TimerSetTimeout( TimerEvent_t *obj )
 TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature )
 {
     return RtcTempCompensation( period, temperature );
+}
+
+void EnterLowPowerHandler( void )
+{
+    if( ( TimerListHead != NULL ) && ( TimerListHead->IsStarted == true ) )
+    {
+        if( HasLoopedThroughMain < 5 )
+        {
+            HasLoopedThroughMain++;
+        }
+        else
+        {
+            HasLoopedThroughMain = 0;
+            LpmEnterStopMode( );
+        }
+    }
 }
 
 void TimerProcess( void )

@@ -8,6 +8,8 @@
 #include "lw.h"
 #include "log.h"
 
+bool BoardIsIdle( void );
+
 #if defined(__CC_ARM)
 static const char *toolchains = "MDK";
 #elif defined(__ICCARM__)
@@ -88,6 +90,8 @@ static int lw_evt_dispatch(const lw_evt_t *p_lw_evt)
 int main(void)
 {
     uint32_t devaddr = 0x12345678;
+    uint8_t deveui[8] = {0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x01};
+    uint16_t cn470_chmask[6] = {0x00FF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
     uint8_t lw_tx_buf[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 
     BoardInitMcu( );
@@ -95,9 +99,17 @@ int main(void)
 
     log_set_level(DEBUG);
 
+#if 0
+    // test for EU868
     lw_init(LORAMAC_REGION_EU868, LW_MODE_OTAA, lw_evt_dispatch);
+#else
+    // test for CN470OLD CH00~CH07
+    lw_init(LORAMAC_REGION_CN470OLD, LW_MODE_OTAA, lw_evt_dispatch);
+    lw_channel_mask_set(cn470_chmask);
+#endif
 
     lw_se_id_set(LW_SE_ID_DEVADDR, (uint8_t *)(&devaddr));
+    lw_se_id_set(LW_SE_ID_DEVEUI, deveui);
 
     LOG(INFO, "ToolChains: %s", toolchains);
     print_se_id();
@@ -118,6 +130,11 @@ int main(void)
         }
 
         lw_run();
+
+        if( BoardIsIdle() ) {
+            //enter lowpowr
+            EnterLowPowerHandler( );
+        }
     }
 }
 

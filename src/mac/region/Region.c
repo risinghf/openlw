@@ -178,6 +178,55 @@
 #define CN470_RX_BEACON_SETUP( )
 #endif
 
+#ifdef REGION_CN470OLD
+#include "RegionCN470OLD.h"
+#define CN470OLD_CASE                                 case LORAMAC_REGION_CN470OLD:
+#define CN470OLD_IS_ACTIVE( )                         CN470OLD_CASE { return true; }
+#define CN470OLD_GET_PHY_PARAM( )                     CN470OLD_CASE { return RegionCN470OLDGetPhyParam( getPhy ); }
+#define CN470OLD_SET_BAND_TX_DONE( )                  CN470OLD_CASE { RegionCN470OLDSetBandTxDone( txDone ); break; }
+#define CN470OLD_INIT_DEFAULTS( )                     CN470OLD_CASE { RegionCN470OLDInitDefaults( params ); break; }
+#define CN470OLD_VERIFY( )                            CN470OLD_CASE { return RegionCN470OLDVerify( verify, phyAttribute ); }
+#define CN470OLD_APPLY_CF_LIST( )                     CN470OLD_CASE { RegionCN470OLDApplyCFList( applyCFList ); break; }
+#define CN470OLD_CHAN_MASK_SET( )                     CN470OLD_CASE { return RegionCN470OLDChanMaskSet( chanMaskSet ); }
+#define CN470OLD_COMPUTE_RX_WINDOW_PARAMETERS( )      CN470OLD_CASE { RegionCN470OLDComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
+#define CN470OLD_RX_CONFIG( )                         CN470OLD_CASE { return RegionCN470OLDRxConfig( rxConfig, datarate ); }
+#define CN470OLD_TX_CONFIG( )                         CN470OLD_CASE { return RegionCN470OLDTxConfig( txConfig, txPower, txTimeOnAir ); }
+#define CN470OLD_LINK_ADR_REQ( )                      CN470OLD_CASE { return RegionCN470OLDLinkAdrReq( linkAdrReq, drOut, txPowOut, nbRepOut, nbBytesParsed ); }
+#define CN470OLD_RX_PARAM_SETUP_REQ( )                CN470OLD_CASE { return RegionCN470OLDRxParamSetupReq( rxParamSetupReq ); }
+#define CN470OLD_NEW_CHANNEL_REQ( )                   CN470OLD_CASE { return RegionCN470OLDNewChannelReq( newChannelReq ); }
+#define CN470OLD_TX_PARAM_SETUP_REQ( )                CN470OLD_CASE { return RegionCN470OLDTxParamSetupReq( txParamSetupReq ); }
+#define CN470OLD_DL_CHANNEL_REQ( )                    CN470OLD_CASE { return RegionCN470OLDDlChannelReq( dlChannelReq ); }
+#define CN470OLD_ALTERNATE_DR( )                      CN470OLD_CASE { return RegionCN470OLDAlternateDr( currentDr, type ); }
+#define CN470OLD_NEXT_CHANNEL( )                      CN470OLD_CASE { return RegionCN470OLDNextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
+#define CN470OLD_CHANNEL_ADD( )                       CN470OLD_CASE { return RegionCN470OLDChannelAdd( channelAdd ); }
+#define CN470OLD_CHANNEL_REMOVE( )                    CN470OLD_CASE { return RegionCN470OLDChannelsRemove( channelRemove ); }
+#define CN470OLD_APPLY_DR_OFFSET( )                   CN470OLD_CASE { return RegionCN470OLDApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define CN470OLD_RX_BEACON_SETUP( )                   CN470OLD_CASE { RegionCN470OLDRxBeaconSetup( rxBeaconSetup, outDr ); break; }
+#else
+#define CN470OLD_IS_ACTIVE( )
+#define CN470OLD_GET_PHY_PARAM( )
+#define CN470OLD_SET_BAND_TX_DONE( )
+#define CN470OLD_INIT_DEFAULTS( )
+#define CN470OLD_GET_NVM_CTX( )
+#define CN470OLD_VERIFY( )
+#define CN470OLD_APPLY_CF_LIST( )
+#define CN470OLD_CHAN_MASK_SET( )
+#define CN470OLD_COMPUTE_RX_WINDOW_PARAMETERS( )
+#define CN470OLD_RX_CONFIG( )
+#define CN470OLD_TX_CONFIG( )
+#define CN470OLD_LINK_ADR_REQ( )
+#define CN470OLD_RX_PARAM_SETUP_REQ( )
+#define CN470OLD_NEW_CHANNEL_REQ( )
+#define CN470OLD_TX_PARAM_SETUP_REQ( )
+#define CN470OLD_DL_CHANNEL_REQ( )
+#define CN470OLD_ALTERNATE_DR( )
+#define CN470OLD_NEXT_CHANNEL( )
+#define CN470OLD_CHANNEL_ADD( )
+#define CN470OLD_CHANNEL_REMOVE( )
+#define CN470OLD_APPLY_DR_OFFSET( )
+#define CN470OLD_RX_BEACON_SETUP( )
+#endif
+
 #ifdef REGION_CN779
 #include "RegionCN779.h"
 #define CN779_CASE                                 case LORAMAC_REGION_CN779:
@@ -528,6 +577,7 @@ bool RegionIsActive( LoRaMacRegion_t region )
         AS923_IS_ACTIVE( );
         AU915_IS_ACTIVE( );
         CN470_IS_ACTIVE( );
+        CN470OLD_IS_ACTIVE( );
         CN779_IS_ACTIVE( );
         EU433_IS_ACTIVE( );
         EU868_IS_ACTIVE( );
@@ -550,6 +600,7 @@ PhyParam_t RegionGetPhyParam( LoRaMacRegion_t region, GetPhyParams_t* getPhy )
         AS923_GET_PHY_PARAM( );
         AU915_GET_PHY_PARAM( );
         CN470_GET_PHY_PARAM( );
+        CN470OLD_GET_PHY_PARAM( );
         CN779_GET_PHY_PARAM( );
         EU433_GET_PHY_PARAM( );
         EU868_GET_PHY_PARAM( );
@@ -571,6 +622,7 @@ void RegionSetBandTxDone( LoRaMacRegion_t region, SetBandTxDoneParams_t* txDone 
         AS923_SET_BAND_TX_DONE( );
         AU915_SET_BAND_TX_DONE( );
         CN470_SET_BAND_TX_DONE( );
+        CN470OLD_SET_BAND_TX_DONE( );
         CN779_SET_BAND_TX_DONE( );
         EU433_SET_BAND_TX_DONE( );
         EU868_SET_BAND_TX_DONE( );
@@ -592,6 +644,7 @@ void RegionInitDefaults( LoRaMacRegion_t region, InitDefaultsParams_t* params )
         AS923_INIT_DEFAULTS( );
         AU915_INIT_DEFAULTS( );
         CN470_INIT_DEFAULTS( );
+        CN470OLD_INIT_DEFAULTS( );
         CN779_INIT_DEFAULTS( );
         EU433_INIT_DEFAULTS( );
         EU868_INIT_DEFAULTS( );
@@ -613,6 +666,7 @@ bool RegionVerify( LoRaMacRegion_t region, VerifyParams_t* verify, PhyAttribute_
         AS923_VERIFY( );
         AU915_VERIFY( );
         CN470_VERIFY( );
+        CN470OLD_VERIFY( );
         CN779_VERIFY( );
         EU433_VERIFY( );
         EU868_VERIFY( );
@@ -634,6 +688,7 @@ void RegionApplyCFList( LoRaMacRegion_t region, ApplyCFListParams_t* applyCFList
         AS923_APPLY_CF_LIST( );
         AU915_APPLY_CF_LIST( );
         CN470_APPLY_CF_LIST( );
+        CN470OLD_APPLY_CF_LIST( );
         CN779_APPLY_CF_LIST( );
         EU433_APPLY_CF_LIST( );
         EU868_APPLY_CF_LIST( );
@@ -655,6 +710,7 @@ bool RegionChanMaskSet( LoRaMacRegion_t region, ChanMaskSetParams_t* chanMaskSet
         AS923_CHAN_MASK_SET( );
         AU915_CHAN_MASK_SET( );
         CN470_CHAN_MASK_SET( );
+        CN470OLD_CHAN_MASK_SET( );
         CN779_CHAN_MASK_SET( );
         EU433_CHAN_MASK_SET( );
         EU868_CHAN_MASK_SET( );
@@ -676,6 +732,7 @@ void RegionComputeRxWindowParameters( LoRaMacRegion_t region, int8_t datarate, u
         AS923_COMPUTE_RX_WINDOW_PARAMETERS( );
         AU915_COMPUTE_RX_WINDOW_PARAMETERS( );
         CN470_COMPUTE_RX_WINDOW_PARAMETERS( );
+        CN470OLD_COMPUTE_RX_WINDOW_PARAMETERS( );
         CN779_COMPUTE_RX_WINDOW_PARAMETERS( );
         EU433_COMPUTE_RX_WINDOW_PARAMETERS( );
         EU868_COMPUTE_RX_WINDOW_PARAMETERS( );
@@ -697,6 +754,7 @@ bool RegionRxConfig( LoRaMacRegion_t region, RxConfigParams_t* rxConfig, int8_t*
         AS923_RX_CONFIG( );
         AU915_RX_CONFIG( );
         CN470_RX_CONFIG( );
+        CN470OLD_RX_CONFIG( );
         CN779_RX_CONFIG( );
         EU433_RX_CONFIG( );
         EU868_RX_CONFIG( );
@@ -718,6 +776,7 @@ bool RegionTxConfig( LoRaMacRegion_t region, TxConfigParams_t* txConfig, int8_t*
         AS923_TX_CONFIG( );
         AU915_TX_CONFIG( );
         CN470_TX_CONFIG( );
+        CN470OLD_TX_CONFIG( );
         CN779_TX_CONFIG( );
         EU433_TX_CONFIG( );
         EU868_TX_CONFIG( );
@@ -739,6 +798,7 @@ uint8_t RegionLinkAdrReq( LoRaMacRegion_t region, LinkAdrReqParams_t* linkAdrReq
         AS923_LINK_ADR_REQ( );
         AU915_LINK_ADR_REQ( );
         CN470_LINK_ADR_REQ( );
+        CN470OLD_LINK_ADR_REQ( );
         CN779_LINK_ADR_REQ( );
         EU433_LINK_ADR_REQ( );
         EU868_LINK_ADR_REQ( );
@@ -760,6 +820,7 @@ uint8_t RegionRxParamSetupReq( LoRaMacRegion_t region, RxParamSetupReqParams_t* 
         AS923_RX_PARAM_SETUP_REQ( );
         AU915_RX_PARAM_SETUP_REQ( );
         CN470_RX_PARAM_SETUP_REQ( );
+        CN470OLD_RX_PARAM_SETUP_REQ( );
         CN779_RX_PARAM_SETUP_REQ( );
         EU433_RX_PARAM_SETUP_REQ( );
         EU868_RX_PARAM_SETUP_REQ( );
@@ -781,6 +842,7 @@ int8_t RegionNewChannelReq( LoRaMacRegion_t region, NewChannelReqParams_t* newCh
         AS923_NEW_CHANNEL_REQ( );
         AU915_NEW_CHANNEL_REQ( );
         CN470_NEW_CHANNEL_REQ( );
+        CN470OLD_NEW_CHANNEL_REQ( );
         CN779_NEW_CHANNEL_REQ( );
         EU433_NEW_CHANNEL_REQ( );
         EU868_NEW_CHANNEL_REQ( );
@@ -802,6 +864,7 @@ int8_t RegionTxParamSetupReq( LoRaMacRegion_t region, TxParamSetupReqParams_t* t
         AS923_TX_PARAM_SETUP_REQ( );
         AU915_TX_PARAM_SETUP_REQ( );
         CN470_TX_PARAM_SETUP_REQ( );
+        CN470OLD_TX_PARAM_SETUP_REQ( );
         CN779_TX_PARAM_SETUP_REQ( );
         EU433_TX_PARAM_SETUP_REQ( );
         EU868_TX_PARAM_SETUP_REQ( );
@@ -823,6 +886,7 @@ int8_t RegionDlChannelReq( LoRaMacRegion_t region, DlChannelReqParams_t* dlChann
         AS923_DL_CHANNEL_REQ( );
         AU915_DL_CHANNEL_REQ( );
         CN470_DL_CHANNEL_REQ( );
+        CN470OLD_DL_CHANNEL_REQ( );
         CN779_DL_CHANNEL_REQ( );
         EU433_DL_CHANNEL_REQ( );
         EU868_DL_CHANNEL_REQ( );
@@ -844,6 +908,7 @@ int8_t RegionAlternateDr( LoRaMacRegion_t region, int8_t currentDr, AlternateDrT
         AS923_ALTERNATE_DR( );
         AU915_ALTERNATE_DR( );
         CN470_ALTERNATE_DR( );
+        CN470OLD_ALTERNATE_DR( );
         CN779_ALTERNATE_DR( );
         EU433_ALTERNATE_DR( );
         EU868_ALTERNATE_DR( );
@@ -865,6 +930,7 @@ LoRaMacStatus_t RegionNextChannel( LoRaMacRegion_t region, NextChanParams_t* nex
         AS923_NEXT_CHANNEL( );
         AU915_NEXT_CHANNEL( );
         CN470_NEXT_CHANNEL( );
+        CN470OLD_NEXT_CHANNEL( );
         CN779_NEXT_CHANNEL( );
         EU433_NEXT_CHANNEL( );
         EU868_NEXT_CHANNEL( );
@@ -886,6 +952,7 @@ LoRaMacStatus_t RegionChannelAdd( LoRaMacRegion_t region, ChannelAddParams_t* ch
         AS923_CHANNEL_ADD( );
         AU915_CHANNEL_ADD( );
         CN470_CHANNEL_ADD( );
+        CN470OLD_CHANNEL_ADD( );
         CN779_CHANNEL_ADD( );
         EU433_CHANNEL_ADD( );
         EU868_CHANNEL_ADD( );
@@ -907,6 +974,7 @@ bool RegionChannelsRemove( LoRaMacRegion_t region, ChannelRemoveParams_t* channe
         AS923_CHANNEL_REMOVE( );
         AU915_CHANNEL_REMOVE( );
         CN470_CHANNEL_REMOVE( );
+        CN470OLD_CHANNEL_REMOVE( );
         CN779_CHANNEL_REMOVE( );
         EU433_CHANNEL_REMOVE( );
         EU868_CHANNEL_REMOVE( );
@@ -928,6 +996,7 @@ uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, 
         AS923_APPLY_DR_OFFSET( );
         AU915_APPLY_DR_OFFSET( );
         CN470_APPLY_DR_OFFSET( );
+        CN470OLD_APPLY_DR_OFFSET( );
         CN779_APPLY_DR_OFFSET( );
         EU433_APPLY_DR_OFFSET( );
         EU868_APPLY_DR_OFFSET( );
@@ -949,6 +1018,7 @@ void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup
         AS923_RX_BEACON_SETUP( );
         AU915_RX_BEACON_SETUP( );
         CN470_RX_BEACON_SETUP( );
+        CN470OLD_RX_BEACON_SETUP( );
         CN779_RX_BEACON_SETUP( );
         EU433_RX_BEACON_SETUP( );
         EU868_RX_BEACON_SETUP( );

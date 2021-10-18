@@ -521,6 +521,10 @@ typedef enum eLoRaMacRegion
      */
     LORAMAC_REGION_CN470,
     /*!
+     * Chinese band on 470MHz for V1.0.3
+     */
+    LORAMAC_REGION_CN470OLD,
+    /*!
      * Chinese band on 779MHz
      */
     LORAMAC_REGION_CN779,

@@ -145,6 +145,8 @@ TimerTime_t TimerGetElapsedTime( TimerTime_t past );
  */
 TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature );
 
+void EnterLowPowerHandler( void );
+
 /*!
  * \brief Processes pending timer events
  */

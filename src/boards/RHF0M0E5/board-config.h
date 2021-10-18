@@ -74,6 +74,47 @@ extern "C"
 #define UART_TX                                     PB_6
 #define UART_RX                                     PB_7
 
+//#define DEBUG_PIN
+
+#define PIN0                    (NC)        // Not exist pin
+#define PIN1                    (NC)        // VCC
+#define PIN2                    (NC)        // GND
+
+#ifdef  DEBUG_PIN
+#define PIN3                    (NC)     // SWCLK
+#define PIN4                    (NC)     // SWDIO
+#else
+#define PIN3                    (PA_13)     // SWCLK
+#define PIN4                    (PA_14)     // SWDIO
+#endif
+
+#define PIN5                    (PB_15)
+#define PIN6                    (PA_15)
+#define PIN7                    (PB_4)
+#define PIN8                    (PB_3)
+#define PIN9                    (NC)        // USART1_RX(PB_7)
+#define PIN10                   (NC)        // USART1_TX(PB_6)
+#define PIN11                   (PB_5)
+#define PIN12                   (PC_1)
+#define PIN13                   (PC_0)
+#define PIN14                   (NC)        // GND
+#define PIN15                   (NC)        // RFIO
+#define PIN16                   (NC)        // GND
+#define PIN17                   (NC)        // RST
+#define PIN18                   (PA_3)
+#define PIN19                   (PA_2)
+#define PIN20                   (PB_10)
+#define PIN21                   (PA_9)
+#define PIN22                   (NC)        // GND
+#define PIN23                   (PA_0)
+#define PIN24                   (PB_13)
+#define PIN25                   (PB_9)
+#define PIN26                   (PB_14)
+#define PIN27                   (PA_10)
+#define PIN28                   (PB_0)
+#define PIN29                   (NC)
+#define PIN30                   (NC)
+#define PIN31                   (NC)
 
 #ifdef __cplusplus
 }

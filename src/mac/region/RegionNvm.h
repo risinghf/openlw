@@ -53,7 +53,7 @@ typedef enum eRegionCN470ChannelPlan
 }RegionCN470ChannelPlan_t;
 
 // Selection of REGION_NVM_MAX_NB_CHANNELS
-#if defined( REGION_CN470 )
+#if defined( REGION_CN470 ) || defined( REGION_CN470OLD )
     #define REGION_NVM_MAX_NB_CHANNELS                 96
 #elif defined( REGION_US915 ) || defined( REGION_AU915 )
     #define REGION_NVM_MAX_NB_CHANNELS                 72
@@ -76,7 +76,7 @@ typedef enum eRegionCN470ChannelPlan
 
 // Selection of REGION_NVM_CHANNELS_MASK_SIZE
 #if defined( REGION_CN470 ) || defined( REGION_US915 ) || \
-    defined( REGION_AU915 )
+    defined( REGION_AU915 ) || defined( REGION_CN470OLD )
     #define REGION_NVM_CHANNELS_MASK_SIZE              6
 #else
     // All others
@@ -88,7 +88,7 @@ typedef enum eRegionCN470ChannelPlan
  */
 typedef struct sRegionNvmDataGroup1
 {
-#if defined( REGION_US915 ) || defined( REGION_AU915 ) || defined( REGION_CN470 )
+#if defined( REGION_US915 ) || defined( REGION_AU915 ) || defined( REGION_CN470 ) || defined( REGION_CN470OLD )
     /*!
      * LoRaMac channels remaining
      */

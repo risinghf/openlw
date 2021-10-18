@@ -181,6 +181,10 @@ void lw_run(void)
 
     /** Processes the radio log */
     RadioLogPop( );
+
+
+    void LoRaMacDebug(void);
+    LoRaMacDebug();
 }
 
 int lw_join(int8_t dr)
@@ -430,10 +434,18 @@ int lw_retry_get(void)
 int lw_channel_mask_set(uint16_t *mask)
 {
     MibRequestConfirm_t mibReq;
+    int ret;
+
+    mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
+    mibReq.Param.ChannelsMask = mask;
+
+    ret = LoRaMacMibSetRequestConfirm( &mibReq );
+    if(LORAMAC_STATUS_OK != ret) {
+        return ret;
+    }
 
     mibReq.Type = MIB_CHANNELS_MASK;
     mibReq.Param.ChannelsMask = mask;
-
     return LoRaMacMibSetRequestConfirm( &mibReq );
 }
 

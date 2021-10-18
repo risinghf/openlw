@@ -10,7 +10,9 @@ src += Glob('soft-se/*.c')
 src_tmp = Split("""
 region/Region.c
 region/RegionCommon.c
+region/RegionBaseUS.c
 region/RegionEU868.c
+region/RegionCN470OLD.c
 """)
 src += File(src_tmp)
 
