@@ -280,6 +280,7 @@ static LoRaMacCryptoStatus_t PrepareB0( uint16_t msgLen, KeyIdentifier_t keyID, 
 
     b0[0] = 0x49;
 
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     if( ( isAck == true ) && ( dir == DOWNLINK ) )
     {
         // confFCnt contains the frame counter value modulo 2^16 of the "confirmed" uplink or downlink frame that is being acknowledged
@@ -291,6 +292,7 @@ static LoRaMacCryptoStatus_t PrepareB0( uint16_t msgLen, KeyIdentifier_t keyID, 
         b0[2] = ( confFCnt >> 8 ) & 0xFF;
     }
     else
+#endif
     {
         b0[1] = 0x00;
         b0[2] = 0x00;
