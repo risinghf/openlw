@@ -74,7 +74,7 @@ extern "C"
 #define UART_TX                                     PB_6
 #define UART_RX                                     PB_7
 
-//#define DEBUG_PIN
+#define DEBUG_PIN
 
 #define PIN0                    (NC)        // Not exist pin
 #define PIN1                    (NC)        // VCC

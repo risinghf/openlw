@@ -1,4 +1,5 @@
 import os
+Import('region_band_list')
 
 # get current directory
 # cwd = os.getcwd()
@@ -11,10 +12,17 @@ src_tmp = Split("""
 region/Region.c
 region/RegionCommon.c
 region/RegionBaseUS.c
-region/RegionEU868.c
-region/RegionCN470OLD.c
 """)
 src += File(src_tmp)
+
+for band in region_band_list:
+    tmp = Glob('region/Region' + band.split('_')[1] + '.c')
+    src.append(tmp[0])
+    if band == 'REGION_CN470':
+        src.append(Glob('region/RegionCN470A20.c'))
+        src.append(Glob('region/RegionCN470B20.c'))
+        src.append(Glob('region/RegionCN470A26.c'))
+        src.append(Glob('region/RegionCN470B26.c'))
 
 cpppath = [
     cwd,

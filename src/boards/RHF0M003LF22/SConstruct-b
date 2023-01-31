@@ -1,0 +1,151 @@
+import os
+
+# project config
+SCON_PROJECT_NAME = 'demo'
+LINKER_SCRIPT = 'gcc/stm32wle5xx_flash.ld'
+BUILD = 'Release'
+
+# toolchains
+if os.getenv('RHF_TOOL_CHAINS'):
+    TOOL_PATH = os.getenv('RHF_TOOL_CHAINS')
+else:
+    TOOL_PATH = 'C:/gcc-arm-none-eabi/bin'
+
+print('TOOL_PATH: ', TOOL_PATH)
+# TOOL_PATH = 'D:/software/gcc-arm-none-eabi-10-2020-q4-major/bin'
+TOOL_INCPATH = os.path.join(TOOL_PATH, '../arm-none-eabi/include')
+TOOL_LIBPATH = os.path.join(TOOL_PATH, '../arm-none-eabi/lib')
+
+BULID_LIST_ROOT_PATH = BULID_OBJ_ROOT_PATH = os.path.join('bulid', SCON_PROJECT_NAME, 'list')
+if not os.path.exists(BULID_LIST_ROOT_PATH):
+    os.makedirs(BULID_LIST_ROOT_PATH)
+BULID_LIST_MAP_BASE_NAME = os.path.join(BULID_LIST_ROOT_PATH, SCON_PROJECT_NAME)
+
+PREFIX = 'arm-none-eabi-'
+CC = PREFIX + 'gcc'
+AS = PREFIX + 'gcc'
+AR = PREFIX + 'ar'
+CXX = PREFIX + 'g++'
+LINK = PREFIX + 'gcc'
+TARGET_EXT = 'elf'
+SIZE = PREFIX + 'size'
+OBJDUMP = PREFIX + 'objdump'
+OBJCPY = PREFIX + 'objcopy'
+
+DEVICE = ' -mcpu=cortex-m4 -mthumb -ffunction-sections -fdata-sections'
+CFLAGS = DEVICE + ' -Dgcc -Wall'
+AFLAGS = ' -c' + DEVICE + ' -x assembler-with-cpp -Wa,-mimplicit-it=thumb '
+# LFLAGS = DEVICE + ' -Wl,--gc-sections,-Map={}.map,--cref,-u,Reset_Handler -T{} -specs=nano.specs -specs=nosys.specs'.format(SCON_PROJECT_NAME, LINKER_SCRIPT)
+LFLAGS = DEVICE + ' -Wl,--gc-sections,-Map={}.map,--cref -T{} -specs=nano.specs -specs=nosys.specs -lc -lm'.format(BULID_LIST_MAP_BASE_NAME, LINKER_SCRIPT)
+
+if BUILD == 'Debug':
+    CFLAGS += ' -O0 -gdwarf-2 -g'
+    AFLAGS += ' -gdwarf-2'
+else:
+    CFLAGS += ' -O2'
+
+CXXFLAGS = CFLAGS 
+
+SCONS_TARGET = '{}.{}'.format(SCON_PROJECT_NAME, TARGET_EXT)
+SCONS_TARGET_HEX = '{}.hex'.format(SCON_PROJECT_NAME)
+SCONS_TARGET_BIN = '{}.bin'.format(SCON_PROJECT_NAME)
+
+DefaultEnvironment(tools=[])
+env = Environment(tools = ['mingw'],
+    AS = AS, ASFLAGS = AFLAGS,
+    CC = CC, CCFLAGS = CFLAGS,
+    AR = AR, ARFLAGS = '-rc',
+    CXX = CXX, CXXFLAGS = CXXFLAGS,
+    LINK = LINK, LINKFLAGS = LFLAGS)
+env.PrependENVPath('PATH', TOOL_PATH)
+    
+env.Replace(
+    ARCOMSTR = 'AR $TARGET',
+    ASCOMSTR = 'AS $TARGET',
+    ASPPCOMSTR = 'AS $TARGET',
+    CCCOMSTR = 'CC $TARGET',
+    CXXCOMSTR = 'CXX $TARGET',
+    LINKCOMSTR = 'LINK $TARGET'
+)
+
+CPPDEFINES = [
+    'CORE_CM4', 
+    'STM32WLE5xx', 
+    'USE_HAL_DRIVER',
+    'USE_FULL_ASSERT',
+#    'USE_TCXO',
+    'SOFT_SE',
+    'REGION_EU868',
+    'REGION_CN470OLD'
+]
+
+env.AppendUnique(CPPDEFINES = CPPDEFINES)
+# env.AppendUnique(CPPPATH = TOOL_INCPATH)
+# env.AppendUnique(LIBPATH = TOOL_LIBPATH)
+
+SOURCE = []
+ASOURCE = []
+
+BULID_OBJ_ROOT_PATH = os.path.join('bulid', SCON_PROJECT_NAME, 'obj')
+BULID_OBJ_BOARD_PATH = os.path.join(BULID_OBJ_ROOT_PATH, 'bsp/board')
+BULID_OBJ_STM32_HAL_PATH = os.path.join(BULID_OBJ_ROOT_PATH, 'bsp/stm32wl')
+BULID_OBJ_SYSTEM_PATH = os.path.join(BULID_OBJ_ROOT_PATH, 'system')
+BULID_OBJ_RADIO_PATH = os.path.join(BULID_OBJ_ROOT_PATH, 'radio')
+BULID_OBJ_APP_PATH = os.path.join(BULID_OBJ_ROOT_PATH, 'app')
+BULID_OBJ_MAC_PATH = os.path.join(BULID_OBJ_ROOT_PATH, 'mac')
+
+BULID_TARGET_ROOT_PATH = os.path.join(os.path.join('bulid', SCON_PROJECT_NAME, 'exe'))
+SCONS_TARGET = os.path.join(BULID_TARGET_ROOT_PATH, SCONS_TARGET)
+SCONS_TARGET_HEX = os.path.join(BULID_TARGET_ROOT_PATH, SCONS_TARGET_HEX)
+SCONS_TARGET_BIN = os.path.join(BULID_TARGET_ROOT_PATH, SCONS_TARGET_BIN)
+
+POST_ACTION  = OBJCPY + ' -O ihex $TARGET {}\n'.format(SCONS_TARGET_HEX)
+POST_ACTION += OBJCPY + ' -O binary $TARGET {}\n'.format(SCONS_TARGET_BIN)
+POST_ACTION += (SIZE + ' $TARGET \n')
+
+group = SConscript('SConscript', variant_dir=BULID_OBJ_BOARD_PATH, duplicate=False)
+env.AppendUnique(CPPPATH = group['CPPPATH'])
+env.AppendUnique(CPPDEFINES = group['CPPDEFINES'])
+SOURCE += group['SOURCE']
+
+group = SConscript('../mcu/stm32wl/SConscript', variant_dir=BULID_OBJ_STM32_HAL_PATH, duplicate=False)
+env.AppendUnique(CPPPATH = group['CPPPATH'])
+env.AppendUnique(CPPDEFINES = group['CPPDEFINES'])
+SOURCE += group['SOURCE']
+
+group = SConscript('../../system/SConscript', variant_dir=BULID_OBJ_SYSTEM_PATH, duplicate=False)
+env.AppendUnique(CPPPATH = group['CPPPATH'])
+env.AppendUnique(CPPDEFINES = group['CPPDEFINES'])
+SOURCE += group['SOURCE']
+
+group = SConscript('../../radio/SConscript', variant_dir=BULID_OBJ_RADIO_PATH, duplicate=False)
+env.AppendUnique(CPPPATH = group['CPPPATH'])
+env.AppendUnique(CPPDEFINES = group['CPPDEFINES'])
+SOURCE += group['SOURCE']
+
+group = SConscript('../../mac/SConscript', variant_dir=BULID_OBJ_MAC_PATH, duplicate=False)
+env.AppendUnique(CPPPATH = group['CPPPATH'])
+env.AppendUnique(CPPDEFINES = group['CPPDEFINES'])
+SOURCE += group['SOURCE']
+
+group = SConscript('../../apps/LoRaMac/SConscript', variant_dir=BULID_OBJ_APP_PATH, duplicate=False)
+env.AppendUnique(CPPPATH = group['CPPPATH'])
+env.AppendUnique(CPPDEFINES = group['CPPDEFINES'])
+SOURCE += group['SOURCE']
+
+# print(env.Dump())
+
+# objects = env.Object(SOURCE)
+print('------------------')
+for index in SOURCE:
+    print(index)
+print('------------------')
+for index in env['CPPPATH']:
+    print(index)
+print('------------------')
+print(len(SOURCE))
+
+env.Program(SCONS_TARGET, SOURCE)
+
+env.AddPostAction(SCONS_TARGET, POST_ACTION)
+

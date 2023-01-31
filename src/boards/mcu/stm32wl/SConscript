@@ -1,0 +1,46 @@
+import os
+
+# get current directory
+# cwd = os.getcwd()
+cwd = os.path.dirname(File('SConscript').rfile().abspath)
+
+# The set of source files associated with this SConscript file.
+src = Split("""
+CMSIS/Device/stm32wl/system_stm32wlxx.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_cortex.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_dma.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_dma_ex.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_flash.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_flash_ex.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_pwr.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_pwr_ex.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rcc.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rcc_ex.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rtc.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rtc_ex.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_spi.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_spi_ex.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart_ex.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_usart.c
+STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_usart_ex.c
+""")
+
+# print(src)
+
+cpppath = [
+    cwd + '/CMSIS',
+    cwd + '/CMSIS/Device/stm32wl',
+    cwd + '/STM32WLxx_HAL_Driver/Inc/Legacy',
+    cwd + '/STM32WLxx_HAL_Driver/Inc']
+
+cppdefines = []
+
+group = {
+    'SOURCE'     : File(src),
+    'CPPDEFINES' : cppdefines,
+    'CPPPATH'    : cpppath}
+
+Return('group')

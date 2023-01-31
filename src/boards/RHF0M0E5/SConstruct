@@ -109,7 +109,7 @@ env.AppendUnique(CPPPATH = group['CPPPATH'])
 env.AppendUnique(CPPDEFINES = group['CPPDEFINES'])
 SOURCE += group['SOURCE']
 
-group = SConscript('../mcu/stm32/SConscript', variant_dir=BULID_OBJ_STM32_HAL_PATH, duplicate=False)
+group = SConscript('../mcu/stm32wl/SConscript', variant_dir=BULID_OBJ_STM32_HAL_PATH, duplicate=False)
 env.AppendUnique(CPPPATH = group['CPPPATH'])
 env.AppendUnique(CPPDEFINES = group['CPPDEFINES'])
 SOURCE += group['SOURCE']

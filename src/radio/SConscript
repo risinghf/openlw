@@ -1,19 +1,31 @@
 import os
-
+Import('RADIO_TYPE')
 # get current directory
 # cwd = os.getcwd()
 cwd = os.path.dirname(File('SConscript').rfile().abspath)
 
 # The set of source files associated with this SConscript file.
-src = Split("""
-radio-log.c
-sx126x/radio.c
-sx126x/sx126x.c
-""")
+if RADIO_TYPE == 'sx126x':
+    src = Split("""
+    radio-log.c
+    sx126x/radio.c
+    sx126x/sx126x.c
+    """)
 
-cpppath = [
+    cpppath = [
     cwd,
     cwd + '/sx126x']
+elif RADIO_TYPE == 'sx1276':
+    src = Split("""
+    radio-log.c
+    sx1276/sx1276.c
+    """)
+
+    cpppath = [
+    cwd,
+    cwd + '/sx1276']
+else:
+    print('Error not find radio ship')
 
 cppdefines = []
 
